@@ -16,7 +16,7 @@ class GoString(ctypes.Structure):
 
 
 
-lib = ctypes.CDLL('sharedtest/pkg/linux_amd64_shared/dns/dnscmd.a')
+lib = ctypes.CDLL('mylib.so')
 
 lib.ReturnInt.argtypes = [GoInt]
 lib.ReturnInt.restype = GoInt

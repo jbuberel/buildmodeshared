@@ -18,7 +18,7 @@ ffi.cdef("""
 """)
 
 # Note - use dnscmd.a, not dnslib.a.
-dnslib = ffi.dlopen("sharedtest/pkg/linux_amd64_shared/dns/dnscmd.a")
+dnslib = ffi.dlopen("mylib.so")
 
 
 # Integers are easy - just call the function as normal:

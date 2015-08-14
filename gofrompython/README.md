@@ -101,7 +101,7 @@ When this build completes, you will see a few new files in current directory nam
 
 ## Viewing the exported symbols
 
-Having compiled the `dns/dnscmd/dnscmd.go` program into a `.a` file, you should be
+Having compiled the `dns/dnscmd/dnscmd.go` program into a `.so` file, you should be
 able to extract the list of exported symbols using `nm -g`. In that output
 you should see `ReturnString` and `ReturnInt`:
 
@@ -152,7 +152,7 @@ class GoString(ctypes.Structure):
 
 
 
-lib = ctypes.CDLL('./dnscmd.so')
+lib = ctypes.CDLL('./mylib.so')
 
 lib.ReturnInt.argtypes = [GoInt]
 lib.ReturnInt.restype = GoInt
@@ -188,7 +188,7 @@ ffi.cdef("""
 """)
 
 # Note - use dnscmd.a, not dnslib.a.
-dnslib = ffi.dlopen("mylib.so")
+dnslib = ffi.dlopen("./mylib.so")
 
 
 # Integers are easy - just call the function as normal:
