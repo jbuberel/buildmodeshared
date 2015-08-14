@@ -1,8 +1,4 @@
-# Using Go Shared Libraries
-
-[TOC]
-
-## Calling a Go Library from Python
+# Go from Python
 
 CAUTION: This is still a very manual process that requires a thorough
 understanding of both Python and Go.  This also requires experience working
@@ -19,21 +15,25 @@ then create a simple library with two exported functions. After compiling the
 library into the appropriate shared object, you'll see two methods for
 calling those funcitons from Python (CTAGS, CFFI).
 
-### Creating a workspace
+## Install the prerequisites
+
+For these two examples, you'll need a working Python installation that includes the `ctypes` and `cffi` libraries.
+
+The `ctypes` support should be part of your Python installation. To install the `cffi` package on an Ubuntu-like system, do the following:
 
 ```
-$ mkdir ~/goproj/
-$ cd ~/goproj/
+$ sudo apt-get install libffi-dev
+...
+$ sudo pip install cffi
+```
+
+## Setup a workspace
+
+Starting in the top-level directoy in which you cloned this repo:
+
+```
+$ cd gofrompython
 $ export GOPATH=`pwd`
-$ mkdir bin src pkg
-```
-
-Now, setup the directory structure for the sample Go app:
-
-```
-$ cd $GOPATH
-$ mkdir -p src/dns/dnscmd src/dns/dnslib
-$ touch src/dns/dnscmd/dnscmd.go src/dns/dnslib/dnslib.go
 ```
 
 The application is trivial. The `dns/dnslib.go` will contain two
@@ -42,51 +42,48 @@ funcitons that will be exported symbols in our shared library -
 will be our compile target; that is what `dns/dnscmd.go` is for. Even though
 that file has a `func main()` declared, that funciton will not be called.
 
-Set the contents of the `src/dns/dnscmd/dnscmd.go` file to this:
+You can [view the source here](./src/dns/dnscmd/dnscmd.go), and below:
 
 ```
 package main
 
 import (
-	"C"
-	"dns/dnslib"
-	"fmt"
+    "C"
+    _ "dns/dnslib"
 )
 
 func main() {
-	fmt.Println(dnslib.ReturnString("golang.org"))
-	fmt.Println(dnslib.ReturnInt(3))
 }
+
 ```
 
-Set the contents of the `src/dns/dnslib/dnslib.go` file to the snippet below.
-Note that the spacing of the `//export` is specific - there should be no space
-between the `//` and the `export` text:
+
+You can [view the source of the library here](./src/dns/dnslib/dnslib.go) and below. Note that the spacing of the `//export` is specific - there should be no space between the `//` and the `export` text:
 
 ```
 package dnslib
 
 import (
-	"C"
-	"net"
+    "C"
+    "net"
 )
 
-// export ReturnString
+//export ReturnString
 func ReturnString(val string) string {
-	cname, err := net.LookupCNAME(val)
-	if err != nil {
-		return "Could not find CNAME"
-	}
-	return cname
+    cname, err := net.LookupCNAME(val)
+    if err != nil {
+        return "Could not find CNAME"
+    }
+    return cname
 }
 
-// export ReturnInt
+//export ReturnInt
 func ReturnInt(val int) int {
-	return val + 3
+    return val + 3
 }
 ```
 
-### Compiling the library
+## Compiling the library
 
 You should now be ready to compile this into a working binary application,
 composed of shared libraries (.so) instead of a single statically linked
@@ -118,7 +115,7 @@ mylib.so
             └── dnslib.go
 ```
 
-### Viewing the exported symbols
+## Viewing the exported symbols
 
 Having compiled the `dns/dnscmd/dnscmd.go` program into a `.a` file, you should be
 able to extract the list of exported symbols using `nm -g`. In that output
@@ -138,7 +135,7 @@ $ nm -g pkg/linux_amd64_shared/dns/dnscmd.a
 
 ```
 
-### Using the library from Python
+## Using the library from Python
 
 We have two examples that demonstrate calling the `ReturnInt` and
 `ReturnString` methods from Python. Pease keep in mind that both
@@ -246,137 +243,3 @@ def toPythonString(go_string):
 print toPythonString(dnslib.ReturnString(toGoString("golang.org")))
 
 ```
-
-
-## Calling a Go Library from Go
-
-This section describes how you can compile a Go package as a shared object
-(on linux, named \*.so typically) that can be invoked by a Go program. This
-assumes you have a working go15 installation.
-
-### Creating a workspace
-
-```
-$ mkdir ~/goproj/
-$ cd ~/goproj/
-$ export GOPATH=`pwd`
-$ mkdir bin src pkg
-```
-
-Now, setup the directory structure for the sample Go app:
-
-```
-$ cd $GOPATH
-$ mkdir -p src/dns/dnscmd src/dns/dnslib
-$ touch src/dns/dnscmd/dnscmd.go src/dns/dnslib/dnslib.go
-```
-
-The application is trivial. A `main` func that just calls a simple
-function exported by the `dnslib` package.
-
-Set the contents of the `src/dns/dnscmd/dnscmd.go` file to this:
-
-```
-package main
-
-import (
-	"C"
-	"dns/dnslib"
-	"fmt"
-)
-
-func main() {
-	fmt.Println(dnslib.ReturnString("golang.org"))
-	fmt.Println(dnslib.ReturnInt(3))
-}
-```
-
-Set the contents of the `src/dns/dnslib/dnslib.go` file to this:
-
-```
-package dnslib
-
-import (
-	"C"
-	"net"
-)
-
-func ReturnString(val string) string {
-	cname, err := net.LookupCNAME(val)
-	if err != nil {
-		return "Could not find CNAME"
-	}
-	return cname
-}
-
-func ReturnInt(val int) int {
-	return val + 3
-}
-```
-
-
-
-### Compiling a simple application and library
-
-You should now be ready to compile this into a working binary application.
-The result will be an executable command that is dynamically linked to a
-set of shared libraries.
-
-This command will build a shared object of the entire Go standard library:
-
-```
-$ cd $GOPATH
-$ go install -buildmode=shared std
-```
-
-The resulting .so file will be found in your go15 directory:
-
-```
-$ ls -l ~/go15/pkg/linux_amd64_dynlink/libstd.so
-```
-
-Next, we're going to build the dnslib package into a library:
-
-```
-$ cd $GOPATH
-$ go install -buildmode=shared -linkshared dns/dnslib
-```
-
-You should now have a .so file named `libdns-dnslib.so` located here:
-
-```
-.
-├── bin
-├── pkg
-│   └── linux_amd64_dynlink
-│       ├── dns
-│       │   ├── dnslib.a
-│       │   └── dnslib.shlibname
-│       └── libdns-dnslib.so
-└── src
-    └── dns
-        ├── dnscmd
-        │   └── dnscmd.go
-        └── dnslib
-            └── dnslib.go
-
-```
-
-Last step is to build the a program that you can run that will be
-linked to the library:
-
-```
-$ cd $GOPATH
-$ go install -linkshared dns/dnscmd
-```
-
-The `dnscmd` executable will be found in your `$GOPATH/bin` directory. It is
-dynamically linked to the `libdns-dnslib.so` and the `libstd.so`:
-
-```
-$ cd $GOPATH/bin
-$ ./dnscmd
-golang.org.
-10
-```
-
