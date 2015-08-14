@@ -72,10 +72,14 @@ $ go install -buildmode=shared std
 The resulting .so file will be found in your go15 directory. The exact location you see may differ depending on where you have go15 installed:
 
 ```
-$ ls -l ~/go15/pkg/linux_amd64_dynlink/libstd.so
+$ ls -la ~/go15/pkg/linux_amd64_dynlink/libstd.so 
+-rw-r----- 1 jbuberel eng 38356768 Aug 14 13:42 /usr/local/google/home/jbuberel/go15/pkg/linux_amd64_dynlink/libstd.so
+
+$ file ~/go15/pkg/linux_amd64_dynlink/libstd.so 
+/usr/local/google/home/jbuberel/go15/pkg/linux_amd64_dynlink/libstd.so: ELF 64-bit LSB  shared object, x86-64, version 1 (SYSV), dynamically linked, BuildID[sha1]=f58f09cda800bd276b52492c85470aefad2c8fb8, not stripped
 ```
 
-Next, we're going to build the dnslib package into a library:
+Next, we're going to build the dnslib package into a library, but this time we're going to tell the compiler to dynamically link our library against the `libstd.so` that we created in the previous step:
 
 ```
 $ cd $GOPATH
@@ -85,14 +89,15 @@ $ go install -buildmode=shared -linkshared dns/dnslib
 You should now have a .so file named `libdns-dnslib.so` located here:
 
 ```
+$ tree 
 .
-├── bin
 ├── pkg
 │   └── linux_amd64_dynlink
 │       ├── dns
 │       │   ├── dnslib.a
 │       │   └── dnslib.shlibname
 │       └── libdns-dnslib.so
+├── README.md
 └── src
     └── dns
         ├── dnscmd
