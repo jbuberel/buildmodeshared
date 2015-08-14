@@ -1,85 +1,75 @@
-## Calling a Go Library from Go
+# Go from GO
 
 This section describes how you can compile a Go package as a shared object
-(on linux, named \*.so typically) that can be invoked by a Go program. This
+(on linux, named `.so` typically) that can be invoked by a Go program. This
 assumes you have a working go15 installation.
 
-### Creating a workspace
+## Creating a workspace
+
+From the root of the directory where you cloned this repository:
 
 ```
-$ mkdir ~/goproj/
-$ cd ~/goproj/
+$ cd gofromgo
 $ export GOPATH=`pwd`
-$ mkdir bin src pkg
 ```
 
-Now, setup the directory structure for the sample Go app:
-
-```
-$ cd $GOPATH
-$ mkdir -p src/dns/dnscmd src/dns/dnslib
-$ touch src/dns/dnscmd/dnscmd.go src/dns/dnslib/dnslib.go
-```
-
-The application is trivial. A `main` func that just calls a simple
-function exported by the `dnslib` package.
-
-Set the contents of the `src/dns/dnscmd/dnscmd.go` file to this:
-
-```
-package main
-
-import (
-	"C"
-	"dns/dnslib"
-	"fmt"
-)
-
-func main() {
-	fmt.Println(dnslib.ReturnString("golang.org"))
-	fmt.Println(dnslib.ReturnInt(3))
-}
-```
-
-Set the contents of the `src/dns/dnslib/dnslib.go` file to this:
+Our library, `dnslib` will export two functions - `ReturnString` and `ReturnInt`. You can [view the source here](./src/dns/dnslib/dnslib.go) and below:
 
 ```
 package dnslib
 
 import (
-	"C"
-	"net"
+    "C"
+    "net"
 )
 
+//export ReturnString
 func ReturnString(val string) string {
-	cname, err := net.LookupCNAME(val)
-	if err != nil {
-		return "Could not find CNAME"
-	}
-	return cname
+    cname, err := net.LookupCNAME(val)
+    if err != nil {
+        return "Could not find CNAME"
+    }
+    return cname
 }
 
+//export ReturnInt
 func ReturnInt(val int) int {
-	return val + 3
+    return val + 3
 }
 ```
 
+The command - `dnscmd` - is trival. It contains a simple main function that invokes the two methods from the `dnslib` package.
 
+You can [view the source here](./src/dns/dnscmd/dnscmd.go) and below:
 
-# Go from Go
+```
+package main
+
+import (
+    "C"
+    "dns/dnslib"
+)
+
+func main() {
+    fmt.Println(dnslib.ReturnString("golang.org"))
+    fmt.Println(dnslib.ReturnInt(42))
+}
+```
+
+## Building
 
 You should now be ready to compile this into a working binary application.
 The result will be an executable command that is dynamically linked to a
-set of shared libraries.
+set of shared libraries. 
 
-This command will build a shared object of the entire Go standard library:
+The first step is to create a shared object of the Go standard library:
 
 ```
 $ cd $GOPATH
 $ go install -buildmode=shared std
 ```
 
-The resulting .so file will be found in your go15 directory:
+The resulting .so file will be found in your go15 directory. The exact location you see may differ depending on where you have go15 installed:
 
 ```
 $ ls -l ~/go15/pkg/linux_amd64_dynlink/libstd.so
