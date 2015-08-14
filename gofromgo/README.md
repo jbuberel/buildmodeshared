@@ -137,6 +137,7 @@ And just to prove that this is dynamically linked, delete the `dnscmd` binary, a
 
 ```
 $ rm ./bin/dnscmd
+$ go install dns/dnscmd
 $ ls -lha ./bin/dnscmd 
 -rwxr-x--- 1 jbuberel eng 3.3M Aug 14 13:56 ./bin/dnscmd
 
