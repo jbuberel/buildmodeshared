@@ -2,11 +2,10 @@ package main
 
 import (
 	"C"
-	"dns/dnslib"
-	"fmt"
+	_ "dns/dnslib"
 )
 
+// main in this case is a no-op. It will never be called, but it is
+// required in order for the symbols to be exported.
 func main() {
-	fmt.Println(dnslib.ReturnString("golang.org"))
-	fmt.Println(dnslib.ReturnInt(3))
 }
