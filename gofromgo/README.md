@@ -2,7 +2,9 @@
 
 This section describes how you can compile a Go package as a shared object
 (on linux, named `.so` typically) that can be invoked by a Go program. This
-assumes you have a working go15 installation.
+assumes you have a working go15 installation. 
+
+NOTE: This has only been tested on Linux.
 
 ## Creating a workspace
 
@@ -86,7 +88,7 @@ $ cd $GOPATH
 $ go install -buildmode=shared -linkshared dns/dnslib
 ```
 
-You should now have a .so file named `libdns-dnslib.so` located here:
+You should now have a .so file named `libdns-dnslib.so` located in `./pkg/linux_amd64_dynlink`:
 
 ```
 $ tree 
@@ -107,7 +109,7 @@ $ tree
 
 ```
 
-Last step is to build the a program that you can run that will be
+Last step is to build the `dnscmd` program that you can run. It will be
 linked to the library:
 
 ```
@@ -116,11 +118,28 @@ $ go install -linkshared dns/dnscmd
 ```
 
 The `dnscmd` executable will be found in your `$GOPATH/bin` directory. It is
-dynamically linked to the `libdns-dnslib.so` and the `libstd.so`:
+dynamically linked to the `libdns-dnslib.so` and the `libstd.so`. You can verify this from the size of the `dnscmd` binary (just 17k):
 
 ```
-$ cd $GOPATH/bin
-$ ./dnscmd
+$ ./bin/dnscmd
 golang.org.
-10
+45
+
+$ file ./bin/dnscmd
+./bin/dnscmd: ELF 64-bit LSB  executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.24, BuildID[sha1]=207aeb60eb5c4b67c8ba14975be3f99a7d504511, not stripped
+
+$ ls -la ./bin/dnscmd
+-rwxr-x--- 1 jbuberel eng 17550 Aug 14 13:53 ./bin/dnscmd
+
 ```
+
+And just to prove that this is dynamically linked, delete the `dnscmd` binary, and rebuild it without the `-linkshared` option. Size is now 3.3Mb:
+
+```
+$ rm ./bin/dnscmd
+$ ls -lha ./bin/dnscmd 
+-rwxr-x--- 1 jbuberel eng 3.3M Aug 14 13:56 ./bin/dnscmd
+
+```
+
+If you do move the `dnslib.so` file to a different directly, you'll need to ensure that the new location is in your `$LD_LIBRARY_PATH` environment variable.
