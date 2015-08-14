@@ -69,12 +69,12 @@ import (
 )
 
 //export ReturnString
-func ReturnString(val string) string {
+func ReturnString(val string) *C.char {
     cname, err := net.LookupCNAME(val)
     if err != nil {
-        return "Could not find CNAME"
+        C.CString("Could not find CNAME")
     }
-    return cname
+    return C.CString(cname)
 }
 
 //export ReturnInt
@@ -94,26 +94,10 @@ the name of the shared object file:
 
 ```
 $ cd $GOPATH
-$ go install -buildmode=c-shared -o mylib.so dns/dnscmd
+$ go build -buildmode=c-shared -o mylib.so dns/dnscmd
 ```
 
-When this build completes, you will see a few new files in your workspace.
-The file you'll be using is the `dnscmd.a` (not `dnslib.a`), which contains
-the exported symbols:
-
-```
-$ tree
-.
-mylib.so
-├── bin
-├── pkg
-└── src
-    └── dns
-        ├── dnscmd
-        │   └── dnscmd.go
-        └── dnslib
-            └── dnslib.go
-```
+When this build completes, you will see a few new files in current directory named `mylib.so`.
 
 ## Viewing the exported symbols
 
@@ -122,7 +106,7 @@ able to extract the list of exported symbols using `nm -g`. In that output
 you should see `ReturnString` and `ReturnInt`:
 
 ```
-$ nm -g pkg/linux_amd64_shared/dns/dnscmd.a
+$ nm -g mylib.so
                  U abort@@GLIBC_2.2.5
 0000000000466348 B __bss_start
 ...
@@ -147,7 +131,7 @@ automatically handled. Simplifying this process will require the addition of
 Python-specific support in the `gobind` tool via community contributions.
 
 The first example uses `ctypes` - be sure to configured the correct
-pathname to the generated `dnscmd.a` file in the call to `ctypes.CDLL`:
+pathname to the generated `dnscmd.so` file in the call to `ctypes.CDLL`:
 
 ```python
 import ctypes
@@ -168,7 +152,7 @@ class GoString(ctypes.Structure):
 
 
 
-lib = ctypes.CDLL('./pkg/linux_amd64_shared/dns/dnscmd.a')
+lib = ctypes.CDLL('./dnscmd.so')
 
 lib.ReturnInt.argtypes = [GoInt]
 lib.ReturnInt.restype = GoInt
@@ -204,7 +188,7 @@ ffi.cdef("""
 """)
 
 # Note - use dnscmd.a, not dnslib.a.
-dnslib = ffi.dlopen("pkg/darwin_amd64/dns/dnscmd.a")
+dnslib = ffi.dlopen("mylib.so")
 
 
 # Integers are easy - just call the function as normal:

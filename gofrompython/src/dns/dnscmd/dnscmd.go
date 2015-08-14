@@ -2,10 +2,8 @@ package main
 
 import (
 	"C"
-	"dns/dnslib"
+	_ "dns/dnslib"
 )
 
 func main() {
-	dnslib.ReturnString("golang.org")
-
 }
