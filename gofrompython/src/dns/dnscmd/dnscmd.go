@@ -7,4 +7,5 @@ import (
 
 func main() {
 	dnslib.ReturnString("golang.org")
+
 }

@@ -2,19 +2,30 @@ package dnslib
 
 import (
 	"C"
-	"net"
 	"fmt"
+	"net"
+	"unsafe"
 )
 
 //export ReturnString
-func ReturnString(val string) string {
-	buf := C.malloc(C.size_t(100))
-	fmt.Printf("[%t]\n", buf)
+func ReturnString(val string) unsafe.Pointer {
 	cname, err := net.LookupCNAME(val)
 	if err != nil {
-		return "Could not find CNAME"
+		msg := "Could not find CNAME"
+		// Create a n unsafe pointer, buf, that referes
+		buf := C.malloc(C.size_t(len(msg) +1 ))
+		s := (*[01 << 30]byte)(buf)[:len(msg)+ 1]
+		copy(s[:], msg)
+		fmt.Printf("[%v]\n", s )
+		return buf
 	}
-	return cname
+
+	buf := C.malloc(C.size_t(len(cname) +1 ))
+	s := (*[01 << 30]byte)(buf)[:len(cname)+ 1]
+	copy(s[:], cname)
+	fmt.Printf("[%v]\n", s )
+
+	return buf
 }
 
 //export ReturnInt
