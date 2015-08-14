@@ -3,9 +3,9 @@
 This project demonstrates two new features that were added in the Go 1.5
 release.
 
-* The ability to compile a Go program that is dynamically linked to other
+* [Go from Go](./gofromgo/) - The ability to compile a Go program that is dynamically linked to other
 Go libraries.
-* The ability to compile a set of Go packages into a C-style shared library
+* [Go from Python](./gofrompython/) - The ability to compile a set of Go packages into a C-style shared library
 that can be invoked from other languages, such as Pyhon.
 
 First, you'll need a working Go 1.5 installation. If you haven't already
