@@ -158,7 +158,7 @@ lib.ReturnInt.argtypes = [GoInt]
 lib.ReturnInt.restype = GoInt
 
 lib.ReturnString.argtypes = [GoString]
-lib.ReturnString.restype = GoString
+lib.ReturnString.restype = ctypes.c_char_p
 
 print lib.ReturnInt(42)          # 45
 print lib.ReturnString("golang.org")  # "golang.org."
