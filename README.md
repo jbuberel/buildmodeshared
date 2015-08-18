@@ -1,11 +1,12 @@
 # Using Go Shared Libraries
 
 This project demonstrates two new features that were added in the Go 1.5
-release.
+release. Keep in mind that this has only been tested on Linux. Certain
+features are not yet available on all Go platforms.
 
-* [Go from Go](./gofromgo/) - The ability to compile a Go program that is dynamically linked to other
+* The ability to compile a Go program that is dynamically linked to other
 Go libraries.
-* [Go from Python](./gofrompython/) - The ability to compile a set of Go packages into a C-style shared library
+* The ability to compile a set of Go packages into a C-style shared library
 that can be invoked from other languages, such as Pyhon.
 
 First, you'll need a working Go 1.5 installation. If you haven't already
@@ -22,7 +23,14 @@ $ git clone https://github.com/jbuberel/buildmodeshared buildmodeshared
 Once you have the repo cloned, see the [gofromgo](./gofromgo) and 
 [gofrompython](./gofrompython) directories for next steps.
 
-## Warning - Linux Only
+## Contributing
 
-Keep in mind that this has only been tested on Linux. Certain
-features are not available on all Go platforms.
+For details, see [CONTRIBUTING](./CONTRIBUTING.md).
+
+## LICENSE
+
+For details, see [LICENSE](./LICENSE.md).
+
+## NOTE
+
+This is not an official Google project.
