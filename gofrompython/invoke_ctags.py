@@ -39,4 +39,4 @@ lib.ReturnString.argtypes = [GoString]
 lib.ReturnString.restype = GoString
 
 print lib.ReturnInt(42)          # 45
-print lib.ReturnString("golang.org")  # "Your value: World"
+print lib.ReturnString("golang.org")  # "Your value: golang.org."
