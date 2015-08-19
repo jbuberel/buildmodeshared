@@ -1,7 +1,7 @@
 # Using Go Shared Libraries
 
-This project demonstrates two new features that were added in the Go 1.5
-release:
+This project demonstrates a few new features that were added or improved 
+in the Go 1.5 release:
 
 * **-buildmode=shared** - The ability to create a `.so` file from 
 a Go package that can be called by other Go programs.
