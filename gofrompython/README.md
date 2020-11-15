@@ -44,7 +44,7 @@ that file has a `func main()` declared, that funciton will not be called.
 
 You can [view the source here](./src/dns/dnscmd/dnscmd.go), and below:
 
-```
+```go
 package main
 
 import (
@@ -60,7 +60,7 @@ func main() {
 
 You can [view the source of the library here](./src/dns/dnslib/dnslib.go) and below. Note that the spacing of the `//export` is specific - there should be no space between the `//` and the `export` text:
 
-```
+```go
 package dnslib
 
 import (
@@ -72,7 +72,7 @@ import (
 func ReturnString(val string) *C.char {
     cname, err := net.LookupCNAME(val)
     if err != nil {
-        C.CString("Could not find CNAME")
+        return C.CString("Could not find CNAME")
     }
     return C.CString(cname)
 }
