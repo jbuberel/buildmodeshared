@@ -22,7 +22,7 @@ import (
 func ReturnString(val string) *C.char {
 	cname, err := net.LookupCNAME(val)
 	if err != nil {
-		C.CString("Could not find CNAME")
+		return C.CString("Could not find CNAME")
 	}
 	return C.CString(cname)
 }
